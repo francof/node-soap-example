@@ -5,6 +5,7 @@
 var soap = require('soap');
 var express = require('express');
 var fs = require('fs');
+var rateLimit = require("express-rate-limit");
 
 // the splitter function, used by the service
 function splitter_function(args) {
@@ -41,6 +42,13 @@ var app = express();
 app.get('/', function (req, res) {
   res.send('Node Soap Example!<br /><a href="https://github.com/macogala/node-soap-example#readme">Git README</a>');
 })
+const limiter = rateLimit({
+
+    windowMs: 60000, // 1 minute
+    max: 2,	 // limit each IP to 60 requests per minute
+    statusCode: 503
+});
+
 
 // Launch the server and listen
 var port = 8000;
@@ -50,3 +58,4 @@ app.listen(port, function () {
   soap.listen(app, wsdl_path, serviceObject, xml);
   console.log("Check http://localhost:" + port + wsdl_path +"?wsdl to see if the service is working");
 });
+app.use(limiter);
